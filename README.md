@@ -1,10 +1,12 @@
 
+
+## make location of training data command line argument 
+
 ```bash
-# make location of training data command line argument 
 curl -O https://raw.githubusercontent.com/optuna/optuna-examples/main/pytorch/pytorch_lightning_simple.py
 chmod a+x pytorch_lightning_simple.py
 
-diff pytorch_lightning_simple.py ~/github/optuna-examples/pytorch/pytorch_lightning_simple.py
+diff pytorch_lightning_simple.py ~/github/optuna-examples/pytorch/pytorch_lightning_simple.py > patchfile.patch
 129c129
 <     datamodule = FashionMNISTDataModule(data_dir=args.datadir, batch_size=BATCHSIZE)
 ---
@@ -13,8 +15,9 @@ diff pytorch_lightning_simple.py ~/github/optuna-examples/pytorch/pytorch_lightn
 <     parser.add_argument('--datadir', default=f'{os.getcwd()}', type=str)
 ```
 
+## run on local  
+
 ```bash
-# run on local  
 mkdir data
 pip install optuna
 pip install pytorch_lightning
@@ -27,6 +30,7 @@ python pytorch_lightning_simple.py --datadir ./data --pruning
 # setup datastore for repeat run on VMs  
 grid datastore create --source data --name fashionmnist 
 
+grid sync-env
 # setup datastore for repeat run on VMs  
 
 % grid datastore list
@@ -48,35 +52,21 @@ grid run pytorch_lightning_simple.py --datadir grid:fashionmnist:7
 WARNING Neither a CPU or GPU number was specified. 1 CPU will be used as a default. To use N GPUs pass in '--grid_gpus N' flag.
 
 
-    WARNING
-
-    The following files are uncommited. Changes made to these
-    files will not be avalable to Grid when running an Experiment.
-
-      optuna/README.md
-
-    Would you like to continue?
-
-    You can use the flag --ignore_warnings to skip this warning.
-    See details at: https://docs.grid.ai
-
-    [y/N]: y
-
-
         WARNING
         No requirements.txt or environment.yml found but we identified below
         dependencies from your source. Your build could crash or not
         start.
 
-        torchvision
-        packaging
         torch
         pytorch_lightning
+        torchvision
+        optuna
+        packaging
 
 
                 Run submitted!
                 `grid status` to list all runs
-                `grid status micro-rhino-434` to see all experiments for this run
+                `grid status invisible-swallow-386` to see all experiments for this run
 
                 ----------------------
                 Submission summary
@@ -86,7 +76,7 @@ WARNING Neither a CPU or GPU number was specified. 1 CPU will be used as a defau
                 use_spot:                False
                 cloud_provider:          aws
                 cloud_credentials:       cc-qdfdk
-                grid_name:               micro-rhino-434
+                grid_name:               invisible-swallow-386
                 datastore_name:          None
                 datastore_version:       None
                 datastore_mount_dir:     None
