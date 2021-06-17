@@ -1,20 +1,27 @@
-[Grid](https://www.grid.ai) can seamlessly train 100s of machine learning models on the cloud from your laptop, with zero code change.  
+[Grid.ai](https://www.grid.ai) can seamlessly train 100s of machine learning models on the cloud from your laptop, with zero code change.  
 
 In this example, we will demonstrate running a model on laptop, then run the unmodified model on the cloud, then run hyperparameter sweeps in parallel that is only possible in cloud to **see the results 8x faster**, then finally leverage spot instance to **reduce cost of the run by 70%**. 
 
+We will use familiar [MNIST](http://yann.lecun.com/exdb/mnist/).
+We will track progress by viewing [PyTorch Lightning](https://www.pytorchlightning.ai)'s [Tensorboard](https://pytorch-lightning.readthedocs.io/en/stable/api/pytorch_lightning.loggers.tensorboard.html) in Grid's [Tensorboard interface](https://docs.grid.ai/products/run-run-and-sweep-github-files/metrics-charts#tensorboard).
+Grid.ai is the creators of PyTorch Lightning.  Grid.ai is agnostics to Machine Learning frameworks and 3rd party tools.
+The benefits of Grid are available to other Machine Learning frameworks and tools.
+To demonstrate this point, we will NOT use [PyTorch Lightning's Early Stop](https://medium.com/pytorch/pytorch-lightning-1-3-lightning-cli-pytorch-profiler-improved-early-stopping-6e0ffd8deb29).
+Instead, we will use [Optuna](https://optuna.org) for early stopping.
 
-We will use familiar [MNIST](http://yann.lecun.com/exdb/mnist/) using [PyTorch Lightning](https://www.pytorchlightning.ai) framework.
-To make the test more interesting, we will not use [PyTorch Lightning's Early Stop](https://medium.com/pytorch/pytorch-lightning-1-3-lightning-cli-pytorch-profiler-improved-early-stopping-6e0ffd8deb29).  Instead, we will [Optuna](https://optuna.org) for early stopping to show that Grid is agnostics to what is running.
-, run it on laptop, then on train on Grid with zero code change.
-
+ 
+Grid.ai will launch experiments in parallel using [Grid Search](https://docs.grid.ai/products/run-run-and-sweep-github-files/sweep-syntax) strategy varying `batchsize`, `epochs`, `pruning` -- whether Optuna is active or not. Optuna will control the the number of layers, hidden units in each layer and dropouts within each experiment.  The following combinations will result in 8 parallel experiments.
 
 - batchsize=[32,128]
 - epochs=[5,10]
-- pruning=[true,false]
+- pruning=[0,1]
 
+A single command is run execute on Grid.ai
 ``` bash
-grid run --use_spot pytorch_lightning_simple.py --datadir grid:fashionmnist:7 --pruning="['true','false']"  --batchsize="[32,128]" --epochs="[5,10]"
+grid run --use_spot pytorch_lightning_simple.py --datadir grid:fashionmnist:7 --pruning="[0,1]"  --batchsize="[32,128]" --epochs="[5,10]"
 ```
+
+# Step by Step Instructions
 
 ## Local python environment setup and log into Grid
 

@@ -153,7 +153,7 @@ if __name__ == "__main__":
         "trials at the early stages of training.",
     )
     parser.add_argument('--datadir', default=f'{os.getcwd()}', type=str)
-    parser.add_argument('--batchsize', default=BATCHSIZE, type=str)
+    parser.add_argument('--batchsize', default=BATCHSIZE, type=int)
     parser.add_argument('--epochs', default=EPOCHS, type=int)
     args = parser.parse_args()
 
