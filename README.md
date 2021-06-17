@@ -1,40 +1,44 @@
+[Grid](https://www.grid.ai) can seamlessly train 100s of machine learning models on the cloud from your laptop, with zero code change.  
+In this example, we will take an existing [MNIST](http://yann.lecun.com/exdb/mnist/) [PyTorch Lightning](https://www.pytorchlightning.ai) code using [Optuna](https://optuna.org), run it on laptop, then on train on Grid with zero code change.
 
 
-## make location of training data command line argument 
-
-```bash
-curl -O https://raw.githubusercontent.com/optuna/optuna-examples/main/pytorch/pytorch_lightning_simple.py
-chmod a+x pytorch_lightning_simple.py
-
-diff pytorch_lightning_simple.py ~/github/optuna-examples/pytorch/pytorch_lightning_simple.py > patchfile.patch
-129c129
-<     datamodule = FashionMNISTDataModule(data_dir=args.datadir, batch_size=BATCHSIZE)
----
->     datamodule = FashionMNISTDataModule(data_dir=DIR, batch_size=BATCHSIZE)
-155d154
-<     parser.add_argument('--datadir', default=f'{os.getcwd()}', type=str)
-```
-
-## run on local  
+## Local python environment setup and log into Grid
 
 ```bash
-mkdir data
+# create conda env
+conda create --name gridai python=3.7
+conda activate gridai
+# install packages
+pip install lightning-grid
 pip install optuna
 pip install pytorch_lightning
 pip install torchvision
+# login to grid
+grid login --username <username> --key <grid api key>
+```
+
+## Run the model locally on laptop  
+
+```bash
+# retrieve the model
+git clone https://github.com/robert-s-lee/grid-optuna
+cd grid-optuna
+mkdir data
+# Run without Optuna pruning (takes a while)
 python pytorch_lightning_simple.py --datadir ./data
+# Run with Optuna pruning (takes a while)
 python pytorch_lightning_simple.py --datadir ./data --pruning
 ```
 
-## prepare to run on Grid  
+## Prepare Grid for repeated training  
 
-- setup datastore for repeat run on VMs  
+- setup datastore so that MNIST data is not downloaded on each Cloud VM  
 
 ```bash
 grid datastore create --source data --name fashionmnist 
 ```
 
-- setup `requirements.txt`  
+- setup `requirements.txt`  that will be setup on each Cloud VM
 
 ```bash
 touch requirements.txt
@@ -45,19 +49,18 @@ git commit -m "requirements.txt synced with current environment"
         
 ## Run on Grid
 
-- run without Optuna `pruning`
+The only change required are:
+- python to grid run
+- MNIST location from `data` to `grid:fashionmnist:7` indicating this 7 revision of fashionmnist datastore.
   
 ```bash
+# Run without Optuna pruning (takes a while)
 grid run pytorch_lightning_simple.py --datadir grid:fashionmnist:7
-```
-
-- run WITH Optuna `pruning`
-
-```bash
+# Run with Optuna pruning (takes a while)
 grid run pytorch_lightning_simple.py --datadir grid:fashionmnist:7 --pruning  
 ```
 
-## Check progress
+## Check progress on Grid from CLI
 
 - The above commands will show below (abbreviated)
   
@@ -80,4 +83,25 @@ grid run pytorch_lightning_simple.py --datadir grid:fashionmnist:7 --pruning
 
 ```bash
 grid logs mini-swan-563-exp0
+```
+
+## Check realtime viewing Tensorboard graphs on Grid
+
+![Grid Tensorboard display](grid-ai-tensorboard.png)
+
+# How this example was built
+
+## make location of training data command line argument 
+
+```bash
+curl -O https://raw.githubusercontent.com/optuna/optuna-examples/main/pytorch/pytorch_lightning_simple.py
+chmod a+x pytorch_lightning_simple.py
+
+diff pytorch_lightning_simple.py ~/github/optuna-examples/pytorch/pytorch_lightning_simple.py > patchfile.patch
+129c129
+<     datamodule = FashionMNISTDataModule(data_dir=args.datadir, batch_size=BATCHSIZE)
+---
+>     datamodule = FashionMNISTDataModule(data_dir=DIR, batch_size=BATCHSIZE)
+155d154
+<     parser.add_argument('--datadir', default=f'{os.getcwd()}', type=str)
 ```

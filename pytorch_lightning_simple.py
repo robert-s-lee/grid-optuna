@@ -33,10 +33,10 @@ if version.parse(pl.__version__) < version.parse("1.0.2"):
     raise RuntimeError("PyTorch Lightning>=1.0.2 is required for this example.")
 
 PERCENT_VALID_EXAMPLES = 0.1
-BATCHSIZE = 128
+BATCHSIZE = 128 # make this parameter
 CLASSES = 10
-EPOCHS = 10
-DIR = os.getcwd()
+EPOCHS = 10 # make this parameter
+DIR = os.getcwd() # make this parameter
 
 
 class Net(nn.Module):
@@ -126,13 +126,13 @@ def objective(trial: optuna.trial.Trial) -> float:
     ]
 
     model = LightningNet(dropout, output_dims)
-    datamodule = FashionMNISTDataModule(data_dir=args.datadir, batch_size=BATCHSIZE)
+    datamodule = FashionMNISTDataModule(data_dir=args.datadir, batch_size=args.batchsize)
 
     trainer = pl.Trainer(
         logger=True,
         limit_val_batches=PERCENT_VALID_EXAMPLES,
         checkpoint_callback=False,
-        max_epochs=EPOCHS,
+        max_epochs=args.epochs,
         gpus=1 if torch.cuda.is_available() else None,
         callbacks=[PyTorchLightningPruningCallback(trial, monitor="val_acc")],
     )
@@ -153,6 +153,8 @@ if __name__ == "__main__":
         "trials at the early stages of training.",
     )
     parser.add_argument('--datadir', default=f'{os.getcwd()}', type=str)
+    parser.add_argument('--batchsize', default=BATCHSIZE, type=str)
+    parser.add_argument('--epochs', default=EPOCHS, type=int)
     args = parser.parse_args()
 
     pruner: optuna.pruners.BasePruner = (
