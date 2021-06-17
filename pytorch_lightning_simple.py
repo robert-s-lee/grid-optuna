@@ -148,7 +148,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--pruning",
         "-p",
-        action="store_true",
+        default=0, type=int,
         help="Activate the pruning feature. `MedianPruner` stops unpromising "
         "trials at the early stages of training.",
     )

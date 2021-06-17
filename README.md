@@ -1,5 +1,11 @@
-[Grid](https://www.grid.ai) can seamlessly train 100s of machine learning models on the cloud from your laptop, with zero code change.  In this example, we will do just this.  
-Taking an existing [MNIST](http://yann.lecun.com/exdb/mnist/) [PyTorch Lightning](https://www.pytorchlightning.ai) code using [Optuna](https://optuna.org) , run it on laptop, then on train on Grid with zero code change.
+[Grid](https://www.grid.ai) can seamlessly train 100s of machine learning models on the cloud from your laptop, with zero code change.  
+
+In this example, we will demonstrate running a model on laptop, then run the unmodified model on the cloud, then run hyperparameter sweeps in parallel that is only possible in cloud to **see the results 8x faster**, then finally leverage spot instance to **reduce cost of the run by 70%**. 
+
+
+We will use familiar [MNIST](http://yann.lecun.com/exdb/mnist/) using [PyTorch Lightning](https://www.pytorchlightning.ai) framework.
+To make the test more interesting, we will not use [PyTorch Lightning's Early Stop](https://medium.com/pytorch/pytorch-lightning-1-3-lightning-cli-pytorch-profiler-improved-early-stopping-6e0ffd8deb29).  Instead, we will [Optuna](https://optuna.org) for early stopping to show that Grid is agnostics to what is running.
+, run it on laptop, then on train on Grid with zero code change.
 
 
 - batchsize=[32,128]
