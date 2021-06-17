@@ -1,6 +1,14 @@
-[Grid](https://www.grid.ai) can seamlessly train 100s of machine learning models on the cloud from your laptop, with zero code change.  
-In this example, we will take an existing [MNIST](http://yann.lecun.com/exdb/mnist/) [PyTorch Lightning](https://www.pytorchlightning.ai) code using [Optuna](https://optuna.org), run it on laptop, then on train on Grid with zero code change.
+[Grid](https://www.grid.ai) can seamlessly train 100s of machine learning models on the cloud from your laptop, with zero code change.  In this example, we will do just this.  
+Taking an existing [MNIST](http://yann.lecun.com/exdb/mnist/) [PyTorch Lightning](https://www.pytorchlightning.ai) code using [Optuna](https://optuna.org) , run it on laptop, then on train on Grid with zero code change.
 
+
+- batchsize=[32,128]
+- epochs=[5,10]
+- pruning=[true,false]
+
+``` bash
+grid run --use_spot pytorch_lightning_simple.py --datadir grid:fashionmnist:7 --pruning="['true','false']"  --batchsize="[32,128]" --epochs="[5,10]"
+```
 
 ## Local python environment setup and log into Grid
 
