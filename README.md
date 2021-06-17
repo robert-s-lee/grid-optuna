@@ -109,6 +109,10 @@ grid logs smart-dragon-43
 
 ## Use Grid.ai WebUI for Tensorboard graphs
 
+Example of on-demand pricing (top at $0.09) and spot pricing (bottom at $0.03)
+
+![](images/on-demand-spot-cost.png)
+
 Example Metric from Grid.ai WebUI
 
 ![](images/grid-val-acc.png)
