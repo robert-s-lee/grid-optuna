@@ -136,7 +136,7 @@ def objective(trial: optuna.trial.Trial) -> float:
         gpus=1 if torch.cuda.is_available() else None,
         callbacks=[PyTorchLightningPruningCallback(trial, monitor="val_acc")],
     )
-    hyperparameters = dict(n_layers=n_layers, dropout=dropout, output_dims=output_dims)
+    hyperparameters = dict(n_layers=n_layers, dropout=dropout, output_dims=output_dims, epoch=args.epochs, batchsize=args.batchsize)
     trainer.logger.log_hyperparams(hyperparameters)
     trainer.fit(model, datamodule=datamodule)
 

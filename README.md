@@ -21,9 +21,11 @@ A single command is run execute on Grid.ai
 grid run --use_spot pytorch_lightning_simple.py --datadir grid:fashionmnist:7 --pruning="[0,1]"  --batchsize="[32,128]" --epochs="[5,10]"
 ```
 
-# Step by Step Instructions
+# Step by Step Instruction
 
-## Local python environment setup and log into Grid
+This instruction assumes access to a laptop with `bash` and `conda`.  For those with restricted local environment, please use SSH on [Grid.ai Session](https://docs.grid.ai/products/sessions#start-a-session).
+
+## Local python environment setup
 
 ```bash
 # create conda env
@@ -48,65 +50,63 @@ mkdir data
 # Run without Optuna pruning (takes a while)
 python pytorch_lightning_simple.py --datadir ./data
 # Run with Optuna pruning (takes a while)
-python pytorch_lightning_simple.py --datadir ./data --pruning
+python pytorch_lightning_simple.py --datadir ./data --pruning 1
 ```
 
-## Prepare Grid for repeated training  
+## Prepare Grid.ai Datastore 
 
-- setup datastore so that MNIST data is not downloaded on each Cloud VM  
+Setup [Grid.a Datastore](https://docs.grid.ai/products/global-cli-configs/cli-api/grid-datastores) so that MNIST data is not downloaded on each run.  Note the **Version** number created.  Typically this will be **1**.
 
 ```bash
 grid datastore create --source data --name fashionmnist 
-```
-
-- setup `requirements.txt`  that will be setup on each Cloud VM
-
-```bash
-touch requirements.txt
-grid sync-env
-git add requirements.txt
-git commit -m "requirements.txt synced with current environment"
+grid datastore list
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Credential Id ┃              Name ┃ Version ┃     Size ┃          Created ┃    Status ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ cc-qdfdk      │      fashionmnist │       1 │ 141.6 MB │ 2021-06-16 15:13 │ Succeeded │
+└───────────────┴───────────────────┴─────────┴──────────┴──────────────────┴───────────┘
 ```
         
 ## Run on Grid
-
-The only change required are:
-- python to grid run
-- MNIST location from `data` to `grid:fashionmnist:7` indicating this 7 revision of fashionmnist datastore.
   
 ```bash
-# Run without Optuna pruning (takes a while)
-grid run pytorch_lightning_simple.py --datadir grid:fashionmnist:7
-# Run with Optuna pruning (takes a while)
-grid run pytorch_lightning_simple.py --datadir grid:fashionmnist:7 --pruning  
+grid run --use_spot pytorch_lightning_simple.py --datadir grid:fashionmnist:7 --pruning="[0,1]"  --batchsize="[32,128]" --epochs="[5,10]"
+
 ```
 
-## Check progress on Grid from CLI
-
-- The above commands will show below (abbreviated)
+The above commands will show below (abbreviated)
   
 ```bash
-                Run submitted!
-                `grid status` to list all runs
-                `grid status mini-swan-563` to see all experiments for this run
-```
-- `grid status mini-swan-563` shows experiments running in parallel
-  
-```bash
-━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓
-┃ Experiment         ┃                     Command ┃  Status ┃    Duration ┃                  datadir ┃ pruning ┃
-┡━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━┩
-│ mini-swan-563-exp0 │ pytorch_lightning_simple.py │ pending │ 0d-00:03:36 │ /datastores/fashionmnist │    True │
-└────────────────────┴─────────────────────────────┴─────────┴─────────────┴──────────────────────────┴─────────┘
+Run submitted!
+`grid status` to list all runs
+`grid status mini-swan-563` to see all experiments for this run
 ```
 
-- `grid logs mini-swan-563-exp0` shows logs from that experiment
+`grid status mini-swan-563` shows experiments running in parallel
+  
+```bash
+% grid status smart-dragon-43
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━┓
+┃ Experiment           ┃                     Command ┃  Status ┃    Duration ┃                  datadir ┃ pruning ┃ batchsize ┃ epochs ┃
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━┩
+│ smart-dragon-43-exp7 │ pytorch_lightning_simple.py │ running │ 0d-00:07:24 │ /datastores/fashionmnist │       1 │        32 │     10 │
+│ smart-dragon-43-exp6 │ pytorch_lightning_simple.py │ running │ 0d-00:07:27 │ /datastores/fashionmnist │       1 │        32 │      5 │
+│ smart-dragon-43-exp5 │ pytorch_lightning_simple.py │ running │ 0d-00:07:14 │ /datastores/fashionmnist │       1 │       128 │      5 │
+│ smart-dragon-43-exp4 │ pytorch_lightning_simple.py │ pending │ 0d-00:12:52 │ /datastores/fashionmnist │       0 │       128 │      5 │
+│ smart-dragon-43-exp3 │ pytorch_lightning_simple.py │ running │ 0d-00:07:13 │ /datastores/fashionmnist │       0 │        32 │     10 │
+│ smart-dragon-43-exp2 │ pytorch_lightning_simple.py │ running │ 0d-00:07:03 │ /datastores/fashionmnist │       0 │       128 │     10 │
+│ smart-dragon-43-exp1 │ pytorch_lightning_simple.py │ running │ 0d-00:07:02 │ /datastores/fashionmnist │       1 │       128 │     10 │
+│ smart-dragon-43-exp0 │ pytorch_lightning_simple.py │ pending │ 0d-00:12:52 │ /datastores/fashionmnist │       0 │        32 │      5 │
+└──────────────────────┴─────────────────────────────┴─────────┴─────────────┴──────────────────────────┴─────────┴───────────┴────────┘
+```
+
+`grid logs mini-swan-563-exp0` shows logs from that experiment
 
 ```bash
 grid logs mini-swan-563-exp0
 ```
 
-## Check realtime viewing Tensorboard graphs on Grid
+## Grid.ai WebUI show realtime Tensorboard graphs
 
 ![Grid Tensorboard display](grid-ai-tensorboard.png)
 
@@ -125,4 +125,14 @@ diff pytorch_lightning_simple.py ~/github/optuna-examples/pytorch/pytorch_lightn
 >     datamodule = FashionMNISTDataModule(data_dir=DIR, batch_size=BATCHSIZE)
 155d154
 <     parser.add_argument('--datadir', default=f'{os.getcwd()}', type=str)
+```
+
+
+Setup `requirements.txt`  that will be setup on each Cloud VM
+
+```bash
+touch requirements.txt
+grid sync-env
+git add requirements.txt
+git commit -m "requirements.txt synced with current environment"
 ```
