@@ -133,7 +133,7 @@ def objective(trial: optuna.trial.Trial) -> float:
         limit_val_batches=PERCENT_VALID_EXAMPLES,
         checkpoint_callback=False,
         max_epochs=args.epochs,
-        gpus=1 if torch.cuda.is_available() else None,
+        gpus=args.gpus,
         callbacks=[PyTorchLightningPruningCallback(trial, monitor="val_acc")],
     )
     hyperparameters = dict(n_layers=n_layers, dropout=dropout, output_dims=output_dims, epoch=args.epochs, batchsize=args.batchsize)
@@ -144,17 +144,20 @@ def objective(trial: optuna.trial.Trial) -> float:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="PyTorch Lightning example.")
+    parser = argparse.ArgumentParser(description="Grid PyTorch Lightning Optuna example.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         "--pruning",
         "-p",
-        default=0, type=int,
-        help="Activate the pruning feature. `MedianPruner` stops unpromising "
+        default=0, type=int, choices=[0,1],
+        help="Activate Optuna pruning feature. `MedianPruner` stops unpromising "
         "trials at the early stages of training.",
     )
-    parser.add_argument('--datadir', default=f'{os.getcwd()}', type=str)
-    parser.add_argument('--batchsize', default=BATCHSIZE, type=int)
-    parser.add_argument('--epochs', default=EPOCHS, type=int)
+    parser.add_argument('--datadir', default=f'{os.getcwd()}', type=str, help="FashionMNIST directory")
+    parser.add_argument('--batchsize', default=BATCHSIZE, type=int, help="Batchsize")
+    parser.add_argument('--epochs', default=EPOCHS, type=int, help="Max epochs")
+    parser.add_argument('--timeout', default=60, type=int, help="Max seconds to run")
+    parser.add_argument('--gpus', default=0, type=int, help="Number of GPUs to use")
     args = parser.parse_args()
 
     pruner: optuna.pruners.BasePruner = (
@@ -162,7 +165,7 @@ if __name__ == "__main__":
     )
 
     study = optuna.create_study(direction="maximize", pruner=pruner)
-    study.optimize(objective, n_trials=100, timeout=600)
+    study.optimize(objective, n_trials=100, timeout=args.timeout)
 
     print("Number of finished trials: {}".format(len(study.trials)))
 
