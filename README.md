@@ -13,7 +13,7 @@ To demonstrate this point, we will NOT use [PyTorch Lightning's Early Stop](http
 Instead, we will use [Optuna](https://optuna.org) for early stopping.
 We will track progress by viewing [PyTorch Lightning](https://www.pytorchlightning.ai)'s [Tensorboard](https://pytorch-lightning.readthedocs.io/en/stable/api/pytorch_lightning.loggers.tensorboard.html) in Grid.ai's [Tensorboard interface](https://docs.grid.ai/products/run-run-and-sweep-github-files/metrics-charts#tensorboard).
 
-Grid.ai will launch experiments in parallel using [Grid Search](https://docs.grid.ai/products/run-run-and-sweep-github-files/sweep-syntax) strategy.  Grid.ai Hyperparamter sweep control `batchsize`, `epochs`, `pruning` -- whether Optuna is active or not. Optuna will control the the number of layers, hidden units in each layer and dropouts within each experiment.  The following combinations will result in 8 parallel experiments:
+Grid.ai will launch experiments in parallel using [Grid Search](https://docs.grid.ai/products/run-run-and-sweep-github-files/sweep-syntax) strategy.  Grid.ai Hyperparameter sweep control `batchsize`, `epochs`, `pruning` -- whether Optuna is active or not. Optuna will control the number of layers, hidden units in each layer, and dropouts within each experiment.  The following combinations will result in 8 parallel experiments:
 
 - batchsize=[32,128]
 - epochs=[5,10]
