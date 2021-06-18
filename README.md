@@ -1,5 +1,8 @@
 [Grid.ai](https://www.grid.ai) can seamlessly train 100s of machine learning models on the cloud from your laptop, with zero code change.
-In this example, we will run a model on laptop, then run the unmodified model on the cloud.  On the cloud, we will run hyperparameter sweeps in parallel to **see the results 8x faster** and leverage spot instance to **reduce cost of the run by 70%**.  
+In this example, we will run a model on laptop, then run the unmodified model on the cloud.  On the cloud, we will run hyperparameter sweeps in parallel 8 ways.  The parallel run to **complete the run 8x faster** and  spot instance to **reduce cost of the run by 70%**.  
+
+- Single Run [![Single Run](https://img.shields.io/badge/rid_AI-run-78FF96.svg?labelColor=black&logo=data:image/svg%2bxml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMTR2MjBhMTQgMTQgMCAwMDE0IDE0aDlWMzYuOEgxMi42VjExaDIyLjV2N2gxMS4yVjE0QTE0IDE0IDAgMDAzMi40IDBIMTVBMTQgMTQgMCAwMDEgMTR6IiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTM1LjIgNDhoMTEuMlYyNS41SDIzLjl2MTEuM2gxMS4zVjQ4eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==)](https://platform.grid.ai/#/runs?script=https://github.com/robert-s-lee/grid-optuna/blob/dbb7c20cad6bfb419a037f8ff93cb9774fedb2e5/pytorch_lightning_simple.py&cloud=grid&use_spot&instance=t2.medium&accelerators=1&disk_size=200&framework=lightning&script_args=pytorch_lightning_simple.py)
+- 8x Parallel Hyperparameter Sweeps [![Single Run](https://img.shields.io/badge/rid_AI-run-78FF96.svg?labelColor=black&logo=data:image/svg%2bxml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMTR2MjBhMTQgMTQgMCAwMDE0IDE0aDlWMzYuOEgxMi42VjExaDIyLjV2N2gxMS4yVjE0QTE0IDE0IDAgMDAzMi40IDBIMTVBMTQgMTQgMCAwMDEgMTR6IiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTM1LjIgNDhoMTEuMlYyNS41SDIzLjl2MTEuM2gxMS4zVjQ4eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==)](https://platform.grid.ai/#/runs?script=https://github.com/robert-s-lee/grid-optuna/blob/dbb7c20cad6bfb419a037f8ff93cb9774fedb2e5/pytorch_lightning_simple.py&cloud=grid&use_spot&instance=t2.medium&accelerators=1&disk_size=200&framework=lightning&script_args=pytorch_lightning_simple.py '--pruning=[0,1]" '--batchsize=[32,128]" '--epochs=[5,10]")
 
 # Overview
 
@@ -69,10 +72,15 @@ grid datastore list
 ```
         
 ## Run on Grid
-  
+
+- Option 1: with Datastore option so that FashionMNIST is not downloaded again (use on your own or with sharable datastore)  
 ```bash
 grid run --use_spot pytorch_lightning_simple.py --datadir grid:fashionmnist:7 --pruning="[0,1]"  --batchsize="[32,128]" --epochs="[5,10]"
+```
 
+- Option 2: without Datastore and can be shared freely without creating datastore 
+```bash
+grid run --use_spot pytorch_lightning_simple.py --pruning="[0,1]"  --batchsize="[32,128]" --epochs="[5,10]"
 ```
 
 The above commands will show below (abbreviated)
@@ -105,6 +113,12 @@ Run submitted!
 
 ```bash
 grid logs smart-dragon-43
+```
+## Simpler variations to run
+
+```bash
+grid run --use_spot pytorch_lightning_simple.py
+grid run --use_spot pytorch_lightning_simple.py --datadir grid:fashionmnist:7"
 ```
 
 ## Use Grid.ai WebUI for Tensorboard graphs
@@ -142,7 +156,7 @@ optional arguments:
 
 ## Creation of `requirements.txt`
 
-- `requirements.txt` creating using `grid sync-env`
+`requirements.txt` creating using `grid sync-env`
 
 ```bash
 touch requirements.txt
