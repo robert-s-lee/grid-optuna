@@ -8,7 +8,7 @@ on:
   schedule:
   # run at 23 min past the hour every day
   # MIN HOUR DOM MON DOW CMD
-    - cron: 13 * * * *
+    - cron: 23 * * * *
 
 jobs:
   gridlogin:
