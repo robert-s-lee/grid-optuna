@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ master ]
   schedule:
-  # run at 13 min past the hour every day
+  # run at 23 min past the hour every day
   # MIN HOUR DOM MON DOW CMD
     - cron: 13 * * * *
 
