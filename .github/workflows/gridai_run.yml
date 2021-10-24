@@ -1,7 +1,7 @@
 name: "gridai-run"
 
 on:
-  # push:
+  push:
   pull_request:  
   schedule:
   # run at 13 min past the hour every day
