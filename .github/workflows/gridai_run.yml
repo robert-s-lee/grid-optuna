@@ -7,7 +7,7 @@ on:
   # run at 13 min past the hour every day
   # MIN HOUR DOM MON DOW CMD
     - cron: 13 1,9,17 * * *
-    
+
 jobs:
   gridai-run:
     runs-on: ubuntu-latest
@@ -22,12 +22,12 @@ jobs:
           grid run --localdir --instance_type t2.medium --dependency_file requirements.txt pytorch_lightning_simple.py | tee grid.run.log 
           export run_name=$(cat grid.run.log | awk -F: 's1=/grid_name/ {print $2}' | tr -s '[:blank:]')
           echo "run_name=${run_name}" >> $GITHUB_ENV 
-      - id: grid_status
-        uses: gridai-actions/gridai-status@v0
+      - id: grid-status
+        uses: gridai-actions/gridai-status@main
         with:
           obj_type: run
           obj_id: ${run_name}
       - run: |
-          if [ "${{ steps.grid_status.outputs.obj_status }}" != "succeeded" ]; then
+          if [ "${{ steps.grid-status.outputs.obj-status }}" != "succeeded" ]; then
             exit 1
           fi   
