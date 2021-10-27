@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
+      - uses: actions/checkout@v2
       - uses: gridai-actions/gridai-login@v0
         with:
           gridai-username: ${{ secrets.GRIDAI_USERNAME }} 
           gridai-key: ${{ secrets.GRIDAI_KEY }}
-      - uses: actions/checkout@v2
       - run: |
           grid run --localdir --instance_type t2.medium --dependency_file requirements.txt pytorch_lightning_simple.py | tee grid.run.log 
           export run_name=$(cat grid.run.log | awk -F: 's1=/grid_name/ {print $2}' | tr -s '[:blank:]')
@@ -25,8 +25,8 @@ jobs:
       - id: grid-status
         uses: gridai-actions/gridai-status@main
         with:
-          obj_type: run
-          obj_id: ${run_name}
+          obj-type: run
+          obj-id: ${run_name}
       - run: |
           if [ "${{ steps.grid-status.outputs.obj-status }}" != "succeeded" ]; then
             exit 1
