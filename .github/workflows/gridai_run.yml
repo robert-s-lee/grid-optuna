@@ -15,8 +15,8 @@ jobs:
     steps:
       - uses: gridai-actions/gridai-login@v0
         with:
-          gridai_username: ${{ secrets.GRIDAI_USERNAME }} 
-          gridai_key: ${{ secrets.GRIDAI_KEY }}
+          gridai-username: ${{ secrets.GRIDAI_USERNAME }} 
+          gridai-key: ${{ secrets.GRIDAI_KEY }}
       - uses: actions/checkout@v2
       - run: |
           grid run --localdir --instance_type t2.medium --dependency_file requirements.txt pytorch_lightning_simple.py | tee grid.run.log 
