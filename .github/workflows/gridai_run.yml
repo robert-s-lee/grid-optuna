@@ -1,4 +1,4 @@
-name: "gridai-run"
+name: "gridai lightning optuna"
 
 on:
   # push:
@@ -11,48 +11,23 @@ on:
 jobs:
   gridai-run:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: gridai-actions/gridai-login@v0
         with:
-          python-version: '3.8' # min version supported by Grid.ai
+          gridai-username: ${{ secrets.GRIDAI_USERNAME }} 
+          gridai-key: ${{ secrets.GRIDAI_KEY }}
       - run: |
-          python -m pip install --upgrade pip
+          grid run --localdir --instance_type t2.medium --dependency_file requirements.txt pytorch_lightning_simple.py | tee grid.run.log 
+          export run_name=$(cat grid.run.log | awk -F: '$1=/grid_name/ {print $2}' | tr -s '[:blank:]')
+          echo "run_name=${run_name}" >> $GITHUB_ENV 
+      - id: grid-status
+        uses: gridai-actions/gridai-status@v0
+        with:
+          obj-type: run
+          obj-id: ${run_name}
       - run: |
-          pip install lightning-grid --upgrade
-      - run: |
-          grid login --username ${{ secrets.GRIDAI_USERNAME }} --key ${{ secrets.GRIDAI_KEY }}
-      - run: |
-          grid run --localdir --use_spot --dependency_file requirements.txt pytorch_lightning_simple.py | tee grid.run.log
-          RUN_NAME=$(grep grid_name grid.run.log | cut -d':' -f 2 | sed -e 's/^[[:space:]]*//')
-          echo "RUN_NAME=${RUN_NAME}" >> $GITHUB_ENV
-          if [[ -z "${RUN_NAME}" ]]; then
-            echo "Error: grid_name not found in output"
+          if [ "${{ steps.grid-status.outputs.obj-status }}" != "succeeded" ]; then
             exit 1
-          fi
-      - run: |
-          JSON_FILE=$(grid status --export json ${RUN_NAME} | grep Exported | awk '{print $5}')
-          RUN_STATUS=$(cat ${JSON_FILE} | jq -r -c '.[] | .status')
-          # pool at 1 min interval
-          while [ "${RUN_STATUS}" = 'queued' -o "${RUN_STATUS}" = 'running' -o "${RUN_STATUS}" = 'pending' ]; do 
-            echo "${RUN_NAME}:${RUN_STATUS} waiting 60 sec for the next status"
-            sleep 60 
-            JSON_FILE=$(grid status --export json ${RUN_NAME} | grep Exported | awk '{print $5}')
-            RUN_STATUS=$(cat ${JSON_FILE} | jq -r -c '.[] | .status')
-          done
-          # only continue on successful completion
-          case ${RUN_STATUS} in
-            completed|succeeded)
-              echo "${RUN_NAME}:completed"
-              ;;
-            *)
-              echo "Error: ${RUN_NAME} did not finish with completed or succeeded"
-              exit 1
-          esac
-      - run: |
-          grid artifacts ${{ env.RUN_NAME }}
-          if [[ $? != 0 ]]; then
-            echo "Error: ${RUN_NAME} artifacts not found"
-            exit 1
-          fi
-          ls grid_artifacts/*
+          fi   
