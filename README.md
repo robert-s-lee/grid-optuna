@@ -1,4 +1,4 @@
-[![gridai lightning optuna](https://github.com/robert-s-lee/grid-optuna/actions/workflows/gridai_run.yml/badge.svg)](https://github.com/robert-s-lee/grid-optuna/actions/workflows/gridai_run.yml)
+[![gridai lightning optuna](https://github.com/robert-s-lee/grid-optuna/actions/workflows/unittest_ubuntu.yml/badge.svg)](https://github.com/robert-s-lee/grid-optuna/actions/workflows/unittest_ubuntu.yml)
 
 [Grid.ai](https://www.grid.ai) can seamlessly train 100s of machine learning models on the cloud from your laptop, with zero code change.
 In this example, we will run a model on a laptop, then run the unmodified model on the cloud.  On the cloud, we will run hyperparameter sweeps in parallel 8 ways.  The experiment will **complete 8x faster** with the parallel run.  The cost of the run will be **reduced by 70%** with the spot instance.  
