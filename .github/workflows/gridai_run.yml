@@ -2,7 +2,15 @@ name: "gridai lightning optuna"
 
 on:
   push:
+    paths:
+      - action.yml
+      - pytorch_lightning_simple.py
+      - .github/workflows/gridai_run.yml 
   pull_request:  
+    paths:
+      - action.yml
+      - pytorch_lightning_simple.py
+      - .github/workflows/gridai_run.yml  
   schedule:
   # run at 13 min past the hour every day
   # MIN HOUR DOM MON DOW CMD
@@ -14,20 +22,27 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v2
-      - uses: gridai-actions/gridai-login@v0
+
+      - uses: gridai-actions/gridai-login@main
         with:
           gridai-username: ${{ secrets.GRIDAI_USERNAME }} 
           gridai-key: ${{ secrets.GRIDAI_KEY }}
+
+      - id: gridai-obj-create
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          gridai.py cli "grid run --localdir --instance_type t2.medium --dependency_file requirements.txt pytorch_lightning_simple.py" status_to_kv --gha True
+        shell: bash  
+
+      - id: gridai-obj-status
+        run: |
+          gridai.py run ${{ steps.gridai-obj-create.outputs.grid_name }} --gha True
+        shell: bash  
+
       - run: |
-          grid run --localdir --instance_type t2.medium --dependency_file requirements.txt pytorch_lightning_simple.py | tee grid.run.log 
-          export run_name=$(cat grid.run.log | awk -F: '$1=/grid_name/ {print $2}' | tr -s '[:blank:]')
-          echo "run_name=${run_name}" >> $GITHUB_ENV 
-      - id: grid-status
-        uses: gridai-actions/gridai-status@v0
-        with:
-          obj-type: run
-          obj-id: ${run_name}
-      - run: |
-          if [ "${{ steps.grid-status.outputs.obj-status }}" != "succeeded" ]; then
+          if [ -z "$(echo ${{ steps.gridai-obj-status.outputs.obj-summary }} | grep 'succeeded')" ]; then
             exit 1
-          fi   
+          fi             
+        shell: bash  
+
+
