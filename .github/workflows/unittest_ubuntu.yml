@@ -44,4 +44,5 @@ jobs:
         run: |
           cd ${GITHUB_WORKSPACE}
           gridai.py create_run pytorch_lightning_simple.py --grid_args " --localdir --instance_type t2.medium --dependency_file requirements.txt" --gha True
-        shell: bash            
+        shell: bash    
+                
