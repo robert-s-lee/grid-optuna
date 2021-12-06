@@ -23,26 +23,25 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: gridai-actions/gridai-login@main
+      - uses: gridai-actions/gridai-login@v0
         with:
           gridai-username: ${{ secrets.GRIDAI_USERNAME }} 
           gridai-key: ${{ secrets.GRIDAI_KEY }}
 
-      - id: gridai-obj-create
+      - id: gridai-github
         run: |
           cd ${GITHUB_WORKSPACE}
-          gridai.py cli "grid run --localdir --instance_type t2.medium --dependency_file requirements.txt pytorch_lightning_simple.py" status_to_kv --gha True
-        shell: bash  
+          gridai.py create_run pytorch_lightning_simple.py --grid_args " --instance_type t2.medium  " --gha True
+        shell: bash
 
-      - id: gridai-obj-status
+      - id: gridai-localdir
         run: |
-          gridai.py run ${{ steps.gridai-obj-create.outputs.grid_name }} --gha True
-        shell: bash  
+          cd ${GITHUB_WORKSPACE}
+          gridai.py create_run pytorch_lightning_simple.py --grid_args " --localdir --instance_type t2.medium  " --gha True
+        shell: bash        
 
-      - run: |
-          if [ -z "$(echo ${{ steps.gridai-obj-status.outputs.obj-summary }} | grep 'succeeded')" ]; then
-            exit 1
-          fi             
-        shell: bash  
-
-
+      - id: gridai-localdir
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          gridai.py create_run pytorch_lightning_simple.py --grid_args " --localdir --instance_type t2.medium --dependency_file requirements.txt" --gha True
+        shell: bash            
