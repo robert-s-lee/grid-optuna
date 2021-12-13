@@ -28,20 +28,50 @@ jobs:
           gridai-username: ${{ secrets.GRIDAI_USERNAME }} 
           gridai-key: ${{ secrets.GRIDAI_KEY }}
 
+      # without --dependency_file requirements.txt match-status will result in failure
       - id: gridai-github
         run: |
           cd ${GITHUB_WORKSPACE}
           gridai.py create_run pytorch_lightning_simple.py --grid_args " --instance_type t2.medium  " --gha True
         shell: bash
 
+      - id: gridai-github-assert
+        run: |
+          if [ "${{ steps.gridai-github.outputs.match-status }} != 'failed' ]; then
+            exit 1
+
+      # without --dependency_file requirements.txt match-status will result in failure
       - id: gridai-localdir
         run: |
           cd ${GITHUB_WORKSPACE}
           gridai.py create_run pytorch_lightning_simple.py --grid_args " --localdir --instance_type t2.medium  " --gha True
         shell: bash        
 
-      - id: gridai-dependency-file
+      - id: gridai-github-assert
+        run: |
+          if [ "${{ steps.gridai-localdir.outputs.match-status }} != 'failed' ]; then
+            exit 1
+
+      # should result in succeeded
+      - id: gridai-github-dependency-file
+        run: |
+          cd ${GITHUB_WORKSPACE}
+          gridai.py create_run pytorch_lightning_simple.py --grid_args " --instance_type t2.medium --dependency_file requirements.txt" --gha True
+        shell: bash    
+
+      - id: gridai-github-dependency-file-assert
+        run: |
+          if [ "${{ steps.gridai-github-dependency-file.outputs.match-status }} != 'succeeded' ]; then
+            exit 1
+
+      # should result in succeeded
+      - id: gridai-localdir-dependency-file
         run: |
           cd ${GITHUB_WORKSPACE}
           gridai.py create_run pytorch_lightning_simple.py --grid_args " --localdir --instance_type t2.medium --dependency_file requirements.txt" --gha True
         shell: bash    
+
+      - id: gridai-dependency-file-assert
+        run: |
+          if [ "${{ steps.gridai-localdir-dependency-file.outputs.match-status }} != 'succeeded' ]; then
+            exit 1
