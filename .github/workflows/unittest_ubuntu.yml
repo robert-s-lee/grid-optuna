@@ -47,7 +47,7 @@ jobs:
           gridai.py create_run pytorch_lightning_simple.py --grid_args " --localdir --instance_type t2.medium  " --gha True
         shell: bash        
 
-      - id: gridai-github-assert
+      - id: gridai-localdir-assert
         run: |
           if [ "${{ steps.gridai-localdir.outputs.match-status }} != 'failed' ]; then
             exit 1
