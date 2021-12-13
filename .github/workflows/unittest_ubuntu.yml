@@ -37,8 +37,9 @@ jobs:
 
       - id: gridai-github-assert
         run: |
-          if [ "${{ steps.gridai-github.outputs.match-status }}" != 'failed' ]; then
+          if [ "${{ steps.gridai-github.outputs.match-status }}" != '' ]; then
             exit 1
+          fi
 
       # without --dependency_file requirements.txt match-status should result in failed
       - id: gridai-localdir
@@ -49,8 +50,9 @@ jobs:
 
       - id: gridai-localdir-assert
         run: |
-          if [ "${{ steps.gridai-localdir.outputs.match-status }}" != 'failed' ]; then
+          if [ "${{ steps.gridai-localdir.outputs.match-status }}" != '' ]; then
             exit 1
+          fi
 
       # should result in succeeded
       - id: gridai-github-dependency-file
@@ -63,6 +65,7 @@ jobs:
         run: |
           if [ "${{ steps.gridai-github-dependency-file.outputs.match-status }}" != 'succeeded' ]; then
             exit 1
+          fi
 
       # should result in succeeded
       - id: gridai-localdir-dependency-file
@@ -75,3 +78,4 @@ jobs:
         run: |
           if [ "${{ steps.gridai-localdir-dependency-file.outputs.match-status }}" != 'succeeded' ]; then
             exit 1
+          fi
