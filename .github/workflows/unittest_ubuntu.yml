@@ -1,6 +1,7 @@
 name: "gridai lightning optuna"
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - requirements.txt
